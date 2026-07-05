@@ -3,6 +3,7 @@ import { Col, Row } from 'vant'
 import { Button } from 'vant';
 import { Checkbox, CheckboxGroup } from 'vant';
 import { Radio, RadioGroup, Switch, DropdownMenu, DropdownItem } from 'vant';
+import { PasswordInput, NumberKeyboard} from 'vant';
 import { Locale } from 'vant';
 import  enUS  from 'vant/es/locale/lang/en-US'
 import { Calendar, Cell } from 'vant';
@@ -26,6 +27,8 @@ app.use(DropdownItem);
 app.use(Calendar)
 app.use(Cell)
 app.use(ConfigProvider)
+app.use(PasswordInput);
+app.use(NumberKeyboard);
 
 
 app.mount('#app')

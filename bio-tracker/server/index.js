@@ -7,6 +7,7 @@ import pg from 'pg';
 
 const {Client} = pg;
 
+const devMode = false;
 
 const jsonRepresentation = (row) => {
     console.log(`row 1 jsonRep: ${JSON.stringify(row, null, 2)}`);
@@ -35,21 +36,29 @@ const jsonRepresentation = (row) => {
     }
 }
 const app = express();
-const PORT = process.env.PORT || 443;
+let PORT = process.env.PORT || 443;
+if (devMode) {
+    PORT = 3000;
+}
 
 // Middleware to parse json
 app.use(express.json());
 app.use(express.static('dist'))
 console.log(`body parser use start`)
-const keysPrivateFile = '/etc/letsencrypt/live/lane65.xyz/privkey.pem'
-const keysPubFile = '/etc/letsencrypt/live/lane65.xyz/cert.pem'
-const httpsOptions = {
-    key: fs.readFileSync(keysPrivateFile),
-    cert: fs.readFileSync(keysPubFile),
+let httpsServer;
+let httpsOptions;
+if (!devMode) {
+    const keysPrivateFile = '/etc/letsencrypt/live/lane65.xyz/privkey.pem'
+    const keysPubFile = '/etc/letsencrypt/live/lane65.xyz/cert.pem'
+    httpsOptions = {
+        key: fs.readFileSync(keysPrivateFile),
+        cert: fs.readFileSync(keysPubFile),
+    }
+    console.log(`private: ${httpsOptions.key}`);
+    console.log(`cert: ${httpsOptions.cert}`);
+    httpsServer = https.createServer(httpsOptions,app);
 }
-console.log(`private: ${httpsOptions.key}`);
-console.log(`cert: ${httpsOptions.cert}`);
-const httpsServer = https.createServer(httpsOptions,app);
+
 
 app.post('/api/stats', async (req, res) => {
     console.log(`update sql with stats`)
@@ -141,7 +150,15 @@ app.get('/api/getdate/:date', async (req, res) => {
 
 })
 console.log(`listening to port: ${PORT}`);
-httpsServer.listen(PORT, () => {
-    console.log(`Backend server running on http://localhost:${PORT}`);
-});
+if (devMode) {
+    app.listen(PORT,() => {
+        console.log(`dev mode`);
+    })
+}
+else {
+    httpsServer.listen(PORT, () => {
+        console.log(`Backend server running on http://localhost:${PORT}`);
+    });
+}
+
 console.log(`ran off the end`)

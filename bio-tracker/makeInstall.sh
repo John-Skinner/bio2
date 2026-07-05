@@ -1,5 +1,8 @@
 #!/bin/bash
-
+rm -rf node_modules
+npm install
+npm run build
+echo "packing up release"
 rm -rf bioRoot
 mkdir bioRoot
 cp -r server bioRoot/server
