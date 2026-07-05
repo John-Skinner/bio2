@@ -1,20 +1,31 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 
-const msg = ref('nothing');
+const formatDate = (date: any) => {
+  let fullYear: string = `${date.getFullYear()}`
+  return `${fullYear}-${date.getMonth() + 1}-${date.getDate()}`
+}
 const a_pain = ref(0);
 const g_pain = ref(0);
 const drive_time = ref(0)
 const sex_type = ref('None')
 const stress_level = ref('Low')
-const bm_times = ref(0)
-const swim_time = ref(0)
-const elliptical_time = ref(0)
-const walk_distance = ref(0)
-const date = ref('');
+const bm = ref(0)
+const swim_minutes = ref(0)
+const elliptical_minutes = ref(0)
+const walk_miles = ref(0)
+const currentDate = new Date();
+const currentYYY_MM_DD = formatDate(currentDate);
+const localDate = currentDate.toDateString();
+
+console.log(`local date: ${localDate}  currentDate: ${currentYYY_MM_DD}`);
+const date = ref(currentYYY_MM_DD);
+const sleep_hours = ref(0)
+const naps_minutes = ref(0);
+const hep_type = ref('STRETCH');
 
 const show_past_date = ref(false);
-const sit_time = ref(0);
+const sitting_minutes = ref(0);
 const pain_options = [
   {text: "0", value: 0},
   {text: "1", value: 1},
@@ -67,41 +78,111 @@ const sit_time_options = [
   {text: '4', value: 4},
   {text: '5', value: 5},
 ]
+const sleep_time_options = [
+  {text: '0', value: 0},
+  {text: '2', value: 2},
+  {text: '4', value: 4},
+  {text: '6', value: 6},
+  {text: '8', value: 8},
+]
+const nap_time_options = [
+  {text: '0', value: 0},
+  {text: '20', value: 20},
+  {text: '40', value: 40},
+  {text: '60', value: 60},
+]
+const hep_type_options = [
+  {text: 'NONE', value: 'NONE'},
+  {text: 'CORE', value: 'CORE'},
+  {text: 'STRETCH', value: 'STRETCH'}
+]
 
-const goGetMessage = async () => {
-  try {
-    let rmsg = await fetch('http://localhost:5175/api/message');
-    let rsMsg = new Response(rmsg.body);
-    let jsonMsg = await rsMsg.json();
+const scatterStat = (stats: any) => {
+  console.log(`scatter stat`)
+  a_pain.value = stats.a_pain;
+  g_pain.value = stats.g_pain;
+  drive_time.value = stats.drive_time;
+  sex_type.value = stats.sex_type;
+  stress_level.value = stats.stress_level;
+  bm.value = stats.bm;
+  swim_minutes.value = stats.swim_minutes;
+  walk_miles.value = stats.walk_miles;
+  elliptical_minutes.value = stats.elliptical_minutes;
+  sitting_minutes.value = stats.sitting_minutes;
+  sleep_hours.value = stats.sleep_hours;
+  naps_minutes.value = stats.naps_minutes;
+  hep_type.value = stats.hep_type;
 
+}
+const setStatsToDefault = () => {
+  a_pain.value = 0;
+  g_pain.value = 0;
+  drive_time.value = 0;
+  sex_type.value = 'None'
+}
+const collectStats = () => {
 
-    console.log(`response: ${JSON.stringify(jsonMsg)}`);
-    msg.value = jsonMsg.text;
-  } catch (error) {
-    console.log(`service response failed: ${error}`);
-    return 'bad'
+  let stats = {
+    a_pain: a_pain.value,
+    g_pain: g_pain.value,
+    drive_time: drive_time.value,
+    sex_type: sex_type.value,
+    stress_level: stress_level.value,
+    bm: bm.value,
+    swim_minutes: swim_minutes.value,
+    elliptical_minutes: elliptical_minutes.value,
+    walk_miles: walk_miles.value,
+    date: date.value,
+    sleep_hours: sleep_hours.value,
+    naps_minutes: naps_minutes.value,
+    hep_type: hep_type.value,
+    sitting_minutes: sitting_minutes.value,
   }
-
-
+  return JSON.stringify(stats)
 }
-const formatDate = (date) => {
-  let fullYear: string = `${date.getFullYear()}`
-  return `${date.getMonth() + 1}/${date.getDate()}/${fullYear.substring(2)}`
+const submitStats = async () => {
+
+  const success = await fetch("api/stats", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: collectStats()
+  });
+
+  console.log(`success: ${JSON.stringify(success)}`);
 }
-const onConfirm = (value: any) => {
+
+const onConfirm = async (value: any) => {
   show_past_date.value = false;
   date.value = formatDate(value);
+  let past_stats;
+  let url = "api/getdate/" + date.value;
+  console.log(`calculated url: ${url}`);
+  try {
+    past_stats = await fetch(url, {
+      method: 'GET'
+    })
+    let fetchedStats = await past_stats.json();
+    if (fetchedStats.has_prev_set) {
+      scatterStat(fetchedStats.stats);
+    } else {
+      setStatsToDefault();
+    }
+  } catch (error) {
+    console.log(`Error on get date: ${error}`);
+  }
 }
 
 
 </script>
 
 <template>
-  <h2> Bio Tracker</h2>
-  <p>
-    <van-calendar v-model:show="show_past_date" :min-date="new Date(2025,0,1)" @confirm="onConfirm"></van-calendar>
 
-  </p>
+
+  <van-calendar v-model:show="show_past_date" :min-date="new Date(2025,0,1)" @confirm="onConfirm"></van-calendar>
+
+
   <van-row>
     <van-col span="8">
       <van-button plain type="primary" @click="show_past_date=true">Load Past Date</van-button>
@@ -167,7 +248,7 @@ const onConfirm = (value: any) => {
     </van-col>
     <van-col span="16">
       <van-dropdown-menu>
-        <van-dropdown-item v-model="bm_times" :options="bm_times_options"/>
+        <van-dropdown-item v-model="bm" :options="bm_times_options"/>
       </van-dropdown-menu>
     </van-col>
   </van-row>
@@ -178,7 +259,18 @@ const onConfirm = (value: any) => {
     </van-col>
     <van-col span="16">
       <van-dropdown-menu>
-        <van-dropdown-item v-model="swim_time" :options="workout_time_options"/>
+        <van-dropdown-item v-model="swim_minutes" :options="workout_time_options"/>
+      </van-dropdown-menu>
+    </van-col>
+  </van-row>
+
+  <van-row>
+    <van-col span="8">
+      Walk Distance
+    </van-col>
+    <van-col span="16">
+      <van-dropdown-menu>
+        <van-dropdown-item v-model="walk_miles" :options="walk_distance_options"/>
       </van-dropdown-menu>
     </van-col>
   </van-row>
@@ -188,32 +280,60 @@ const onConfirm = (value: any) => {
       Elliptical Time
     </van-col>
     <van-col span="16">
-      <van-dropdown-menu>
-        <van-dropdown-item v-model="elliptical_time" :options="workout_time_options"/>
+      <van-dropdown-menu direction="up">
+        <van-dropdown-item v-model="elliptical_minutes" :options="workout_time_options"/>
       </van-dropdown-menu>
     </van-col>
   </van-row>
+
   <van-row>
     <van-col span="8">
       Sitting Time
     </van-col>
     <van-col span="16">
-      <van-dropdown-menu>
-        <van-dropdown-item v-model="sit_time" :options="sit_time_options"/>
+      <van-dropdown-menu direction="up">
+        <van-dropdown-item v-model="sitting_minutes" :options="sit_time_options"/>
       </van-dropdown-menu>
     </van-col>
   </van-row>
   <van-row>
     <van-col span="8">
-      Walk Distance
+      Sleep Time
     </van-col>
     <van-col span="16">
-      <van-dropdown-menu>
-        <van-dropdown-item v-model="walk_distance" :options="walk_distance_options"/>
+      <van-dropdown-menu direction="up">
+        <van-dropdown-item v-model="sleep_hours" :options="sleep_time_options"/>
       </van-dropdown-menu>
     </van-col>
   </van-row>
+  <van-row>
+    <van-col span="8">
+      Nap Time
+    </van-col>
+    <van-col span="16">
+      <van-dropdown-menu direction="up">
+        <van-dropdown-item v-model="naps_minutes" :options="nap_time_options"/>
+      </van-dropdown-menu>
+    </van-col>
+  </van-row>
+  <van-row>
+    <van-col span="8">
+      HEP Type
+    </van-col>
+    <van-col span="16">
+      <van-dropdown-menu direction="up">
+        <van-dropdown-item v-model="hep_type" :options="hep_type_options"/>
+      </van-dropdown-menu>
+    </van-col>
+  </van-row>
+  <van-row>
+    <van-col span="24">
+      <van-button @click="submitStats">
+        Submit
+      </van-button>
+    </van-col>
 
+  </van-row>
 
 </template>
 

@@ -4,7 +4,7 @@ import BioLogger from './components/BioLogger.vue'
 
 <template>
   <van-config-provider theme="dark">
-    <BioLogger />
+    <BioLogger/>
 
   </van-config-provider>
 </template>
