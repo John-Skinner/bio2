@@ -2,7 +2,7 @@
 import express from 'express';
 import pg from 'pg';
 
-const {Pool, Client} = pg;
+const {Client} = pg;
 
 const jsonRepresentation = (row) => {
     console.log(`row 1 jsonRep: ${JSON.stringify(row, null, 2)}`);
@@ -47,7 +47,6 @@ app.post('/api/stats', async (req, res) => {
         const sqlRes = await client.query('SELECT * from log where date = $1', [req.body.date]);
         if (sqlRes.rows.length > 0) {
             console.log(`update existing entry ${JSON.stringify(req.body)}`)
-            const rowId = sqlRes.rows[0].log_id;
             let updateStatus = await client.query('UPDATE log set a_pain=$1, g_pain=$2, date=$3, walk_miles=$4,' +
                 'swim_minutes=$5, elliptical_minutes=$6, sitting_minutes=$7, sleep_hours=$8, drive_time=$9,' +
                 'naps_minutes=$10, sex_type=$11, stress_level=$12, bm = $13, HEP_type=$14 where date=$3',
