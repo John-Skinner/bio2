@@ -1,8 +1,12 @@
 // server/index.js
 import express from 'express';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
 import pg from 'pg';
 
 const {Client} = pg;
+
 
 const jsonRepresentation = (row) => {
     console.log(`row 1 jsonRep: ${JSON.stringify(row, null, 2)}`);
@@ -31,13 +35,21 @@ const jsonRepresentation = (row) => {
     }
 }
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 443;
 
 // Middleware to parse json
 app.use(express.json());
 app.use(express.static('dist'))
 console.log(`body parser use start`)
-
+const keysPrivateFile = '/etc/letsencrypt/live/lane65.xyz/privkey.pem'
+const keysPubFile = '/etc/letsencrypt/live/lane65.xyz/cert.pem'
+const httpsOptions = {
+    key: fs.readFileSync(keysPrivateFile),
+    cert: fs.readFileSync(keysPubFile),
+}
+console.log(`private: ${httpsOptions.key}`);
+console.log(`cert: ${httpsOptions.cert}`);
+const httpsServer = https.createServer(httpsOptions,app);
 
 app.post('/api/stats', async (req, res) => {
     console.log(`update sql with stats`)
@@ -129,7 +141,7 @@ app.get('/api/getdate/:date', async (req, res) => {
 
 })
 console.log(`listening to port: ${PORT}`);
-app.listen(PORT, () => {
+httpsServer.listen(PORT, () => {
     console.log(`Backend server running on http://localhost:${PORT}`);
 });
 console.log(`ran off the end`)
