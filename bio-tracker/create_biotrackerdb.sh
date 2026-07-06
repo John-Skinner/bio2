@@ -37,5 +37,5 @@ docker run --name biotracker-db \
 -d bio-postgres
 
 
-echo "Access with psql: docker exec -it bio-postgres psql -U biotrackerdbuser -d biotrackerdb"
+echo "Access with psql: docker exec -it bio-postgres psql -U biotrackerdbuser -d biotracker"
 
