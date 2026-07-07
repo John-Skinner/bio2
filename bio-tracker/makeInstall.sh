@@ -8,7 +8,6 @@ mkdir bioRoot
 cp -r server bioRoot/server
 cp  package.json bioRoot
 cp startServer.sh bioRoot
-cp create-psql bioRoot
 cp create_biotrackerdb.sh bioRoot
 cp create-psql.sql bioRoot
 cp Dockerfile bioRoot

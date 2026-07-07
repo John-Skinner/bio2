@@ -14,7 +14,8 @@ watch(pwValue,(newVal, oldVal) =>{
 </script>
 
 <template>
-  <van-config-provider theme="dark">
+  <van-config-provider
+  >
     <van-password-input v-if="!pwPassed"
       :value="pwValue"
       :mask="false"

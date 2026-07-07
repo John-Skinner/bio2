@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import {ref} from 'vue'
+import { showSuccessToast} from "vant";
+import { showFailToast } from "vant";
+import { showLoadingToast } from "vant";
+import { closeToast } from "vant";
 
 const formatDate = (date: any) => {
   let fullYear: string = `${date.getFullYear()}`
@@ -35,6 +39,7 @@ const pain_options = [
 const drive_time_options = [
   {text: "0", value: 0},
   {text: "15", value: 15},
+  {text: "30", value: 30},
   {text: "45", value: 45},
   {text: "60", value: 60},
   {text: "90", value: 90}
@@ -56,6 +61,7 @@ const bm_times_options = [
 ]
 const workout_time_options = [
   {text: '0', value: 0},
+  {text: '10',value: 10},
   {text: '15', value: 15},
   {text: '20', value: 20},
   {text: '25', value: 25},
@@ -141,16 +147,20 @@ const collectStats = () => {
   return JSON.stringify(stats)
 }
 const submitStats = async () => {
-
-  const success = await fetch("api/stats", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: collectStats()
-  });
-
-  console.log(`success: ${JSON.stringify(success)}`);
+  try {
+    await fetch("api/stats", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: collectStats()
+    });
+    showSuccessToast("Logged entry.");
+  }
+  catch (error) {
+    console.error(`Error saving log entry: ${error}`);
+    showFailToast('Failed to log entry.');
+  }
 }
 
 const onConfirm = async (value: any) => {
@@ -159,6 +169,11 @@ const onConfirm = async (value: any) => {
   let past_stats;
   let url = "api/getdate/" + date.value;
   console.log(`calculated url: ${url}`);
+  showLoadingToast({
+    forbidClick:true,
+    loadingType: 'spinner',
+    message:'Loading Log Entry...'
+  })
   try {
     past_stats = await fetch(url, {
       method: 'GET'
@@ -169,8 +184,10 @@ const onConfirm = async (value: any) => {
     } else {
       setStatsToDefault();
     }
+    closeToast();
   } catch (error) {
     console.log(`Error on get date: ${error}`);
+    showFailToast('Failed to load log entry');
   }
 }
 
@@ -180,7 +197,7 @@ const onConfirm = async (value: any) => {
 <template>
 
 
-  <van-calendar v-model:show="show_past_date" :min-date="new Date(2025,0,1)" @confirm="onConfirm"></van-calendar>
+  <van-calendar class="bio-calendar" v-model:show="show_past_date" :min-date="new Date(2025,0,1)" @confirm="onConfirm"></van-calendar>
 
 
   <van-row>
@@ -338,5 +355,12 @@ const onConfirm = async (value: any) => {
 </template>
 
 <style scoped>
+.bio-calendar {
+  --van-primary-color:#ff0000;
+  --van-secondary-color:#ff0000;
+  --van-calendar-confirm-button-height:50px;
+  --van-calendar-background:#ff0000;
+
+}
 
 </style>

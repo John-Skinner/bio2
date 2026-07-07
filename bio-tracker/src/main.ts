@@ -8,11 +8,15 @@ import { Locale } from 'vant';
 import  enUS  from 'vant/es/locale/lang/en-US'
 import { Calendar, Cell } from 'vant';
 import { ConfigProvider } from 'vant';
-import './style.css'
+import { Toast } from 'vant';
+
+
+
 import 'vant/lib/index.css'
 import App from './App.vue'
 
 const app = createApp(App);
+import './style.css'
 Locale.use('en-US',enUS);
 app.use(Col);
 app.use(Row);
@@ -29,6 +33,8 @@ app.use(Cell)
 app.use(ConfigProvider)
 app.use(PasswordInput);
 app.use(NumberKeyboard);
+app.use(Toast);
+
 
 
 app.mount('#app')
