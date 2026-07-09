@@ -4,6 +4,7 @@ import { showSuccessToast} from "vant";
 import { showFailToast } from "vant";
 import { showLoadingToast } from "vant";
 import { closeToast } from "vant";
+import { onMounted } from "vue";
 
 const formatDate = (date: any) => {
   let fullYear: string = `${date.getFullYear()}`
@@ -126,6 +127,11 @@ const setStatsToDefault = () => {
   drive_time.value = 0;
   sex_type.value = 'None'
 }
+onMounted(()=> {
+
+  fetchDate(currentDate).then(()=> {
+  })
+})
 const collectStats = () => {
 
   let stats = {
@@ -162,10 +168,9 @@ const submitStats = async () => {
     showFailToast('Failed to log entry.');
   }
 }
-
-const onConfirm = async (value: any) => {
+const fetchDate = async (forDate: Date) => {
   show_past_date.value = false;
-  date.value = formatDate(value);
+  date.value = formatDate(forDate);
   let past_stats;
   let url = "api/getdate/" + date.value;
   console.log(`calculated url: ${url}`);
@@ -189,6 +194,9 @@ const onConfirm = async (value: any) => {
     console.log(`Error on get date: ${error}`);
     showFailToast('Failed to load log entry');
   }
+}
+const onConfirm = async (value: any) => {
+ await fetchDate(value)
 }
 
 
