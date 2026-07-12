@@ -47,3 +47,8 @@ sudo ./startServer.sh
 ctrl b d
 
 ```
+## using psql
+```angular2html
+docker exec -it bio-postgres psql -U biotrackerdbuser -d biotracker
+```
+

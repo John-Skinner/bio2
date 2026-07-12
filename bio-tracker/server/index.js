@@ -8,7 +8,31 @@ import pg from 'pg';
 const {Client} = pg;
 
 const devMode = false;
+const jsonRepresentationRow = (row) => {
+    console.log(`row 1 jsonRep: ${JSON.stringify(row, null, 2)}`);
 
+    let dateOnly = row.date.getFullYear() + '-' + (row.date.getMonth() + 1) + '-' + row.date.getDate();
+
+    return {
+
+            a_pain: row.a_pain,
+            g_pain: row.g_pain,
+            drive_time: row.drive_time,
+            date: dateOnly,
+            walk_miles: row.walk_miles,
+            sex_type: row.sex_type.trimEnd(),
+            stress_level: row.stress_level.trimEnd(),
+            bm: row.bm,
+            swim_minutes: row.swim_minutes,
+            elliptical_minutes: row.elliptical_minutes,
+            sitting_minutes: row.sitting_minutes,
+            sleep_hours: row.sleep_hours,
+            naps_minutes: row.naps_minutes,
+            hep_type: row.hep_type.trimEnd(),
+
+        }
+
+}
 const jsonRepresentation = (row) => {
     console.log(`row 1 jsonRep: ${JSON.stringify(row, null, 2)}`);
 
@@ -124,6 +148,35 @@ app.post('/api/stats', async (req, res) => {
 
 
     res.json({status: 'ok'});
+});
+app.get('/api/getdaterange/:startDate/:endDate', async (req, res) => {
+    console.log(`getdaterange received `)
+    let requestedDate = req.params.date;
+    console.log(`req.params.startDate: ${req.params.startDate}`);
+    console.log(`req.params.endDate: ${req.params.endDate}`);
+    let startDate = req.params.startDate;
+    let endDate = req.params.endDate;
+
+    const client = await new Client().connect();
+    try {
+        const sqlRes = await client.query('SELECT * from log where ($1 <= date) AND (date <= $2) order by date', [endDate, startDate]);
+        client.end();
+        console.log(`rows length: ${sqlRes.rows.length}`);
+        let list=[];
+        if (sqlRes.rows.length > 0) {
+            for (let row = 0;row < sqlRes.rows.length; row++) {
+                const jsonRep = jsonRepresentationRow(sqlRes.rows[row]);
+                list.push(jsonRep);
+            }
+            res.json(list);
+        } else {
+            res.json({has_prev_set: false});
+        }
+    } catch (error) {
+        console.error(`Error in get date: ${JSON.stringify(error)}`);
+    } finally {
+        client.end();
+    }
 });
 app.get('/api/getdate/:date', async (req, res) => {
 

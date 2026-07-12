@@ -9,15 +9,28 @@ import  enUS  from 'vant/es/locale/lang/en-US'
 import { Calendar, Cell } from 'vant';
 import { ConfigProvider } from 'vant';
 import { Toast } from 'vant';
+import {createMemoryHistory, createRouter} from 'vue-router'
+import Biologger from './components/BioLogger.vue';
+import Grapher from './components/Grapher.vue';
 
 
 
 import 'vant/lib/index.css'
 import App from './App.vue'
+const routes = [
+    { path:'/',component:Biologger },
+    { path:'/graph', component: Grapher }
+]
+export const router = createRouter({
+    history: createMemoryHistory(),
+    routes
+})
 
 const app = createApp(App);
+
 import './style.css'
 Locale.use('en-US',enUS);
+app.use(router);
 app.use(Col);
 app.use(Row);
 app.use(Checkbox)

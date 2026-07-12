@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import BioLogger from './components/BioLogger.vue'
 
 import {watch, ref} from "vue";
 const pwValue = ref('');
@@ -14,8 +13,7 @@ watch(pwValue,(newVal, oldVal) =>{
 </script>
 
 <template>
-  <van-config-provider
-  >
+
     <van-password-input v-if="!pwPassed"
       :value="pwValue"
       :mask="false"
@@ -28,9 +26,24 @@ watch(pwValue,(newVal, oldVal) =>{
       />
 
     <div v-if="pwPassed">
-      <BioLogger  />
+      <nav>
+        <RouterLink to="/" > Log Today </RouterLink>
+        <RouterLink to="/graph"> View Last Week</RouterLink>
+      </nav>
+      <main>
+        <RouterView />
+      </main>
+
 
     </div>
 
-  </van-config-provider>
 </template>
+<style scoped>
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  max-height: 100dvh;
+}
+
+
+</style>

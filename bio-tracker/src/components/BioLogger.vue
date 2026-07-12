@@ -215,6 +215,9 @@ const onConfirm = async (value: any) => {
     <van-col span="8">
       {{ date }}
     </van-col>
+    <van-col span="8">
+      
+    </van-col>
 
   </van-row>
   <van-row>
