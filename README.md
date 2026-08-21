@@ -1,6 +1,6 @@
 ## Generator
 
-```angular2html
+```
 nvm use 24
 npm create vite@latest
 * bioTracker

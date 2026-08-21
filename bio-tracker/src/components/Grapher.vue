@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {Chart} from 'chart.js/auto';
+import * as echarts from 'echarts';
 
 const formatDate = (date: any) => {
   let fullYear: string = `${date.getFullYear()}`
@@ -7,6 +8,7 @@ const formatDate = (date: any) => {
 }
 let startDate = new Date();
 let numDays = 0;
+let echartPlot:any=null;
 let activeChart:any=null;
 
 const setStartDate = (date: any) => {
@@ -135,51 +137,131 @@ const onGetWeek = async () => {
 
     console.log(`fetched stats: ${JSON.stringify(statsList,null,2)}`);
 
-    const ctx = document.getElementById('weekChart') as HTMLCanvasElement;
-    const data = {
-      labels: dateLabels,
-      datasets: [
-        {
-          label: 'a-pain',
-          data: a_pain,
-          borderColor: '#ff0000'
-        },
-        {
-          label: 'drive time',
-          data: drive_time,
-          borderColor: '#00ffff'
-        },
-        {
-          label: 'sit-time',
-          data: sitting_minutes,
-          borderColor: '#00ffaa'
-        },
-        {
-          label: 'swim_minutes',
-          data: swim_minutes,
-          borderColor: '#00ccaa'
-        },
-        {
-          label: 'walk_miles',
-          data: walk_miles,
-          borderColor: '#11bbff'
-        }
-      ]
-    }
-    if (ctx !== null) {
-      if (activeChart !== null) {
-        activeChart.destroy();
-      }
-      activeChart = new Chart(ctx, {
-        type: 'line',
-        data,
-        options: {
-          indexAxis: 'y',
-          maintainAspectRatio:false
-        }
-      })
-    }
+    let usingChart = false;
+    if (usingChart) {
 
+
+      const ctx = document.getElementById('weekChart') as HTMLCanvasElement;
+      const data = {
+        labels: dateLabels,
+        datasets: [
+          {
+            label: 'a-pain',
+            data: a_pain,
+            borderColor: '#ff0000'
+          },
+          {
+            label: 'drive time',
+            data: drive_time,
+            borderColor: '#00ffff'
+          },
+          {
+            label: 'sit-time',
+            data: sitting_minutes,
+            borderColor: '#00ffaa'
+          },
+          {
+            label: 'swim_minutes',
+            data: swim_minutes,
+            borderColor: '#00ccaa'
+          },
+          {
+            label: 'walk_miles',
+            data: walk_miles,
+            borderColor: '#11bbff'
+          }
+        ]
+      }
+      if (ctx !== null) {
+        if (activeChart !== null) {
+          activeChart.destroy();
+        }
+        activeChart = new Chart(ctx, {
+          type: 'line',
+          data,
+          options: {
+            indexAxis: 'y',
+            maintainAspectRatio: false
+          }
+        })
+      }
+    }
+    else {
+      if (echartPlot !== null) {
+        echartPlot.dispose();
+      }
+      echartPlot = echarts.init(document.getElementById('echartOfWeek'))
+      let xAxis = [];
+      let yAxis = [];
+      let data = [];
+      for (let i = 0;i < 7;i++) {
+        for (let j = 0;j < 12;j++) {
+          data.push([i,j,i*(1.0/7.0)+j*.05]);
+
+        }
+        xAxis.push(i);
+      }
+      for (let j = 0;j < 12;j++) {
+        yAxis.push(j);
+      }
+      let option = {
+        tooltip: {},
+        grid: {
+          right:10,
+          left:20
+        },
+        xAxis: {
+          type: 'category',
+          data: xAxis
+        },
+        yAxis: {
+          type: 'category',
+          data: yAxis
+        },
+        visualMap: {
+          type: 'piecewise',
+          min:0,
+          max:1,
+          left: 'right',
+          top: 'center',
+          calculatable: true,
+          realtime: false,
+          splitNumber: 10,
+          inRange: {
+            color: [
+              '#313695',
+              '#4575b4',
+              '#74add1',
+              '#abd9e9',
+              '#e0f3f8',
+              '#ffffbf',
+              '#fee090',
+              '#fdae61',
+              '#f46d43',
+              '#d73027',
+              '#a50026'
+            ]
+          }
+        },
+        series: [
+          {
+            name: 'BIO',
+            type: 'heatmap',
+            emphasis: {
+              itemStyle: {
+                borderColor: '#333',
+                borderWidth: 1,
+              }
+            },
+            progressive: 1000,
+            animation: false
+          }
+        ]
+      };
+      console.log(`setting echart option`)
+      echartPlot.setOption(option);
+
+    }
 
   }
   catch (error) {
@@ -190,6 +272,9 @@ const onGetWeek = async () => {
 </script>
 
 <template>
+  <div id="echartOfWeek">
+
+  </div>
 
   <van-button @click="onGetWeek"> Get Week </van-button>
   <canvas id="weekChart"></canvas>

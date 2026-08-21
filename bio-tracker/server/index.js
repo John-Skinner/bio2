@@ -23,6 +23,7 @@ const jsonRepresentationRow = (row) => {
             sex_type: row.sex_type.trimEnd(),
             stress_level: row.stress_level.trimEnd(),
             bm: row.bm,
+            bm_type: row.bm_type.trimEnd(),
             swim_minutes: row.swim_minutes,
             elliptical_minutes: row.elliptical_minutes,
             sitting_minutes: row.sitting_minutes,
@@ -49,6 +50,7 @@ const jsonRepresentation = (row) => {
             sex_type: row.sex_type.trimEnd(),
             stress_level: row.stress_level.trimEnd(),
             bm: row.bm,
+            bm_type: row.bm_type.trimEnd(),
             swim_minutes: row.swim_minutes,
             elliptical_minutes: row.elliptical_minutes,
             sitting_minutes: row.sitting_minutes,
@@ -94,7 +96,7 @@ app.post('/api/stats', async (req, res) => {
             console.log(`update existing entry ${JSON.stringify(req.body)}`)
             let updateStatus = await client.query('UPDATE log set a_pain=$1, g_pain=$2, date=$3, walk_miles=$4,' +
                 'swim_minutes=$5, elliptical_minutes=$6, sitting_minutes=$7, sleep_hours=$8, drive_time=$9,' +
-                'naps_minutes=$10, sex_type=$11, stress_level=$12, bm = $13, HEP_type=$14 where date=$3',
+                'naps_minutes=$10, sex_type=$11, stress_level=$12, bm = $13, bm_type = $15, HEP_type=$14 where date=$3',
                 [req.body.a_pain,
                     req.body.g_pain,
                     req.body.date,
@@ -108,7 +110,8 @@ app.post('/api/stats', async (req, res) => {
                     req.body.sex_type,
                     req.body.stress_level,
                     req.body.bm,
-                    req.body.hep_type
+                    req.body.hep_type,
+                    req.body.bm_type
                 ]);
             console.log(`Update status: ${updateStatus}`);
 
@@ -128,14 +131,15 @@ app.post('/api/stats', async (req, res) => {
                 req.body.sex_type,
                 req.body.stress_level,
                 req.body.bm,
-                req.body.hep_type
+                req.body.hep_type,
+                req.body.bm_type
             ]
             let insertQuery = 'INSERT INTO log ' +
                 '(a_pain, ' +
                 'g_pain, ' +
                 'date, walk_miles, swim_minutes, elliptical_minutes, sitting_minutes, sleep_hours,' +
-                'drive_time, naps_minutes, sex_type, stress_level, bm, hep_type ) VALUES ' +
-                '($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)'
+                'drive_time, naps_minutes, sex_type, stress_level, bm, hep_type, bm_type ) VALUES ' +
+                '($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)'
             console.log(`query string: ${insertQuery}`)
             let insertStatus = await client.query(insertQuery, params);
             console.log(`insert status: ${insertStatus}`);

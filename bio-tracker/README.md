@@ -35,7 +35,7 @@ and you can now kill or make changes just like you never logged off
 ## installing
 ```
 ./makeInstall.sh
-scp bio.tgz admin@lane65.xyz
+scp bio.tgz admin@lane65.xyz:
 # on lane65
 tmux attach -t myserver
 cd ..

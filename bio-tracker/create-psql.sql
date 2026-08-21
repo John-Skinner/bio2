@@ -42,6 +42,7 @@ CREATE TABLE log (
     sex_type CHAR(12) DEFAULT 'N',
     stress_level CHAR(12) DEFAULT 'LOW',
     bm integer DEFAULT 0,
+    bm_type CHAR(12) default '',
     HEP_type CHAR(12) DEFAULT 'CORE'
 );
 

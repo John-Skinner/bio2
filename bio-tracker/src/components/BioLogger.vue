@@ -16,6 +16,7 @@ const drive_time = ref(0)
 const sex_type = ref('None')
 const stress_level = ref('Low')
 const bm = ref(0)
+const bm_type = ref('NORMAL')
 const swim_minutes = ref(0)
 const elliptical_minutes = ref(0)
 const walk_miles = ref(0)
@@ -103,6 +104,12 @@ const hep_type_options = [
   {text: 'CORE', value: 'CORE'},
   {text: 'STRETCH', value: 'STRETCH'}
 ]
+const bm_type_options = [
+  {text: 'NORMAL', value: 'NORMAL'},
+  {text: 'HARD', value: 'HARD'},
+  {text: 'SOFT',value: 'SOFT'},
+  {text: 'DIARRHEA', value: 'DIARRHEA'},
+]
 
 const scatterStat = (stats: any) => {
   console.log(`scatter stat`)
@@ -112,6 +119,7 @@ const scatterStat = (stats: any) => {
   sex_type.value = stats.sex_type;
   stress_level.value = stats.stress_level;
   bm.value = stats.bm;
+  bm_type.value = stats.bm_type;
   swim_minutes.value = stats.swim_minutes;
   walk_miles.value = stats.walk_miles;
   elliptical_minutes.value = stats.elliptical_minutes;
@@ -141,6 +149,7 @@ const collectStats = () => {
     sex_type: sex_type.value,
     stress_level: stress_level.value,
     bm: bm.value,
+    bm_type: bm_type.value,
     swim_minutes: swim_minutes.value,
     elliptical_minutes: elliptical_minutes.value,
     walk_miles: walk_miles.value,
@@ -216,7 +225,7 @@ const onConfirm = async (value: any) => {
       {{ date }}
     </van-col>
     <van-col span="8">
-      
+
     </van-col>
 
   </van-row>
@@ -280,7 +289,16 @@ const onConfirm = async (value: any) => {
       </van-dropdown-menu>
     </van-col>
   </van-row>
-
+  <van-row>
+    <van-col span="8">
+      BM Type
+    </van-col>
+    <van-col span="16">
+      <van-dropdown-menu direction="up">
+        <van-dropdown-item v-model="bm_type" :options="bm_type_options"/>
+      </van-dropdown-menu>
+    </van-col>
+  </van-row>
   <van-row>
     <van-col span="8">
       Swim Time
