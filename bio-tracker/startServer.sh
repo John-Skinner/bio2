@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "Starting Server"
 PGUSER=biotrackeradmin \
 PGPASSWORD=bio@20262026 \
 PGHOST=localhost \
